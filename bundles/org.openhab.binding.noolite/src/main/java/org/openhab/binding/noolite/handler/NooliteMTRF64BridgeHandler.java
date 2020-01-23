@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,12 +18,14 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.noolite.NooLiteBindingConstants;
 import org.openhab.binding.noolite.internal.NooliteMTRF64Adapter;
 import org.openhab.binding.noolite.internal.config.NooliteBridgeConfiguration;
@@ -50,11 +52,10 @@ import org.slf4j.LoggerFactory;
 @NonNullByDefault
 public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(NooliteMTRF64BridgeHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(NooliteMTRF64BridgeHandler.class);
     @Nullable
     static NooliteMTRF64Adapter adapter;
-    @Nullable
-    private @Nullable NooliteBridgeConfiguration bridgeConfig;
+    private NooliteBridgeConfiguration bridgeConfig = new NooliteBridgeConfiguration();
     public static Map<String, NooliteHandler> thingHandlerMap = new HashMap<String, NooliteHandler>();
     @Nullable
     static NooliteHandler nooliteHandler;
@@ -101,7 +102,7 @@ public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
             updateStatus(ThingStatus.ONLINE);
         } catch (Exception e) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, "Com-port error");
-            logger.debug(e.getMessage());
+            logger.debug("{}",e.getMessage());
         }
     }
 
@@ -165,15 +166,14 @@ public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
         } else {
             data[4] = (byte) (Integer.parseInt(nooliteHandler.getThing().getConfiguration().get("port").toString()));
         }
-        } else if (OnOffType.ON.equals(command)) {
-
+        if (OnOffType.ON.equals(command)){
             data[5] = 2;
             data[6] = 0;
             data[7] = 0;
             data[8] = 0;
             data[9] = 0;
             data[10] = 0;
-        } else if (OnOffType.OFF.equals(command)) {
+        } else if (OnOffType.OFF.equals(command)){
             data[5] = 0;
             data[6] = 0;
             data[7] = 0;

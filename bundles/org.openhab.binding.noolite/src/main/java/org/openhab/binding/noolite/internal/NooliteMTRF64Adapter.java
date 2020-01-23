@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,52 +12,55 @@
  */
 package org.openhab.binding.noolite.internal;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.xml.bind.DatatypeConverter;
-
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.openhab.binding.noolite.handler.NooliteMTRF64BridgeHandler;
 import org.openhab.binding.noolite.internal.config.NooliteBridgeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
+import javax.xml.bind.DatatypeConverter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  *
  * @author Petr Shatsillo - Initial contribution
  *
  */
+@NonNullByDefault
 public class NooliteMTRF64Adapter {
 
     private final Logger logger = LoggerFactory.getLogger(NooliteMTRF64Adapter.class);
+    @Nullable
     DataInputStream in = null;
+    @Nullable
     DataOutputStream out = null;
+    @Nullable
     Thread watcherThread = null;
+    @Nullable
     private OutputStream output;
+    @Nullable
     private SerialPort serial;
 
     public void connect(NooliteBridgeConfiguration config) throws Exception {
         logger.debug("Opening serial connection to port {} with baud rate 9600...", config.serial);
 
-        CommPortIdentifier portIdentifier;
-        try {
-            portIdentifier = CommPortIdentifier.getPortIdentifier(config.serial);
-            serial = portIdentifier.open("org.openhab.binding.noolite", 3000);
+        /*CommPortIdentifier portIdentifier;
+        if(serial != null) {
+            try {
+                portIdentifier = CommPortIdentifier.getPortIdentifier(config.serial);
 
-            serial.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                serial = portIdentifier.open("org.openhab.binding.noolite", 3000);
 
-            in = new DataInputStream(serial.getInputStream());
-            output = serial.getOutputStream();
-            serial.addEventListener(new SerialPortEventListener() {
-                @Override
-                public void serialEvent(SerialPortEvent event) {
+                serial.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+
+                in = new DataInputStream(serial.getInputStream());
+                output = serial.getOutputStream();
+                serial.addEventListener(event -> {
                     try {
                         byte[] data = new byte[17];
                         if (in.read(data) > 0) {
@@ -88,11 +91,11 @@ public class NooliteMTRF64Adapter {
                     } catch (IOException ex) {
                         logger.debug("Error reading from serial port!", ex);
                     }
-                }
-            });
-            serial.notifyOnDataAvailable(true);
-        } catch (Exception e) {
-        }
+                });
+                serial.notifyOnDataAvailable(true);
+            } catch (Exception e) {
+            }
+        }*/
     }
 
     public void disconnect() {

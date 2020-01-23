@@ -21,6 +21,7 @@ The thing has a few configuration parameters:
 | type      | type of noolite device |
 
 ## Type of Noolite channels
+
 | Value | Description  |
 |-------|--------------|
 | 0     | Noolite TX   |

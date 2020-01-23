@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -40,7 +40,7 @@ public class NooliteHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(NooliteHandler.class);
     @Nullable
-    private @Nullable NooliteMTRF64BridgeHandler bridgeMTRF64;
+    private NooliteMTRF64BridgeHandler bridgeMTRF64;
 
     public NooliteHandler(Thing thing) {
         super(thing);
@@ -117,7 +117,7 @@ public class NooliteHandler extends BaseThingHandler {
 
                     double temp = (double) intTemp / 10;
                     try {
-                        updateState(channel.getUID(), new DecimalType(temp)));
+                        updateState(channel.getUID(), new DecimalType(temp));
                     } catch (RuntimeException ex) {
                         logger.debug("Temperature update error");
                     }
