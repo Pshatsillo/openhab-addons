@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+
 package org.openhab.binding.noolite.internal;
 
 import java.io.DataInputStream;
@@ -9,8 +22,14 @@ import org.openhab.binding.noolite.handler.NooliteMTRF64BridgeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author Petr Shatsillo - Initial contribution
+ *
+ */
+
 public class NooliteMTRF64AdapterWatcherThread extends Thread {
-    private static final Logger logger = LoggerFactory.getLogger(NooliteMTRF64AdapterWatcherThread.class);
+    private final Logger logger = LoggerFactory.getLogger(NooliteMTRF64AdapterWatcherThread.class);
 
     private boolean stopped = false;
     private NooliteMTRF64Adapter base;
@@ -34,7 +53,7 @@ public class NooliteMTRF64AdapterWatcherThread extends Thread {
                 in.close();
             }
         } catch (IOException e) {
-            logger.error(e.getLocalizedMessage());
+            logger.error("{}",e.getLocalizedMessage());
         }
 
     }
@@ -45,7 +64,7 @@ public class NooliteMTRF64AdapterWatcherThread extends Thread {
 
         try {
             logger.debug("Starting data listener");
-            while (stopped != true) {
+            while (!stopped) {
                 // if (data.length == 17) {
                 if (in.read(data) > 0) {
                     logger.debug("Received data: {}", DatatypeConverter.printHexBinary(data));
@@ -80,8 +99,7 @@ public class NooliteMTRF64AdapterWatcherThread extends Thread {
                 }
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.debug("{}",e.getLocalizedMessage());
         }
     }
 
