@@ -26,7 +26,11 @@
 				<description>Select channel for noolite device</description>
 				<default>99</default>
 			</parameter>
-
+            <parameter name="refresh" type="integer" required="true">
+                <label>refresh</label>
+                <description>refresh interval channel</description>
+                <default>30</default>
+            </parameter>
 			<parameter name="type" type="text">
 				<label>Type</label>
 				<description>Select type of noolite device</description>

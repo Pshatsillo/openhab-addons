@@ -12,6 +12,9 @@
  */
 package org.openhab.binding.noolite.handler;
 
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -41,6 +44,8 @@ public class NooliteHandler extends BaseThingHandler {
     private final Logger logger = LoggerFactory.getLogger(NooliteHandler.class);
     @Nullable
     private NooliteMTRF64BridgeHandler bridgeMTRF64;
+    protected long lastRefresh = 0;
+    private @Nullable ScheduledFuture<?> refreshPollingJob;
 
     public NooliteHandler(Thing thing) {
         super(thing);
@@ -65,6 +70,27 @@ public class NooliteHandler extends BaseThingHandler {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.HANDLER_CONFIGURATION_PENDING);
             registerMegadThingListener(bridgeMTRF64);
             updateStatus(ThingStatus.ONLINE);
+        }
+
+        String[] rr = getThing().getConfiguration().get("refresh").toString().split("[.]");
+        int pollingPeriod = Integer.parseInt(rr[0]) * 1000;
+        if (pollingPeriod != 0) {
+            if (refreshPollingJob == null || refreshPollingJob.isCancelled()) {
+                refreshPollingJob = scheduler.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        refresh(pollingPeriod);
+                    }
+                }, 0, 1000, TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+
+    public void refresh(int interval) {
+        long now = System.currentTimeMillis();
+        if (now >= (lastRefresh + interval)) {
+            // updateData();
+            lastRefresh = now;
         }
     }
 

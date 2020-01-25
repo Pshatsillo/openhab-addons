@@ -20,10 +20,12 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.openhab.binding.noolite.NooLiteBindingConstants;
 import org.openhab.binding.noolite.handler.NooliteHandler;
 import org.openhab.binding.noolite.handler.NooliteMTRF64BridgeHandler;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link NooliteHandlerFactory} is responsible for creating things and thing
@@ -34,6 +36,16 @@ import org.osgi.service.component.annotations.Component;
 @NonNullByDefault
 @Component(configurationPid = "binding.noolite", service = ThingHandlerFactory.class)
 public class NooliteHandlerFactory extends BaseThingHandlerFactory {
+    private @NonNullByDefault({}) SerialPortManager serialPortManager;
+
+    @Reference
+    protected void setSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = serialPortManager;
+    }
+
+    protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = null;
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -45,7 +57,7 @@ public class NooliteHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (NooLiteBindingConstants.THING_TYPE_BRIDGEMTRF64.equals(thingTypeUID)) {
-            NooliteMTRF64BridgeHandler handler = new NooliteMTRF64BridgeHandler((Bridge) thing);
+            NooliteMTRF64BridgeHandler handler = new NooliteMTRF64BridgeHandler((Bridge) thing, serialPortManager);
             return handler;
         } else if (thingTypeUID.equals(NooLiteBindingConstants.THING_TYPE_DEVICE)) {
             return new NooliteHandler(thing);

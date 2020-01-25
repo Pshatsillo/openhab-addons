@@ -12,19 +12,22 @@
  */
 package org.openhab.binding.noolite.internal;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.transport.serial.SerialPort;
-import org.openhab.binding.noolite.handler.NooliteMTRF64BridgeHandler;
-import org.openhab.binding.noolite.internal.config.NooliteBridgeConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+
+import javax.xml.bind.DatatypeConverter;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.smarthome.io.transport.serial.SerialPort;
+import org.eclipse.smarthome.io.transport.serial.SerialPortEvent;
+import org.eclipse.smarthome.io.transport.serial.SerialPortEventListener;
+import org.eclipse.smarthome.io.transport.serial.SerialPortIdentifier;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
+import org.openhab.binding.noolite.internal.config.NooliteBridgeConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,7 +35,7 @@ import java.io.OutputStream;
  *
  */
 @NonNullByDefault
-public class NooliteMTRF64Adapter {
+public class NooliteMTRF64Adapter implements SerialPortEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(NooliteMTRF64Adapter.class);
     @Nullable
@@ -42,62 +45,34 @@ public class NooliteMTRF64Adapter {
     @Nullable
     Thread watcherThread = null;
     @Nullable
-    private OutputStream output;
-    @Nullable
     private SerialPort serial;
 
-    public void connect(NooliteBridgeConfiguration config) throws Exception {
+    public void connect(NooliteBridgeConfiguration config, SerialPortManager serialPortManager) throws Exception {
         logger.debug("Opening serial connection to port {} with baud rate 9600...", config.serial);
 
-        /*CommPortIdentifier portIdentifier;
-        if(serial != null) {
-            try {
-                portIdentifier = CommPortIdentifier.getPortIdentifier(config.serial);
-
-                serial = portIdentifier.open("org.openhab.binding.noolite", 3000);
-
+        SerialPortIdentifier portIdentifier = serialPortManager.getIdentifier(config.serial);
+        if (portIdentifier != null) {
+            serial = portIdentifier.open("org.openhab.binding.noolite", 3000);
+            if (serial != null) {
                 serial.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
                 in = new DataInputStream(serial.getInputStream());
-                output = serial.getOutputStream();
-                serial.addEventListener(event -> {
-                    try {
-                        byte[] data = new byte[17];
-                        if (in.read(data) > 0) {
-                            logger.debug("Received data: {}", DatatypeConverter.printHexBinary(data));
-                            short count = 0;
-                            byte sum = 0;
-                            for (int i = 0; i <= 14; i++) {
-                                count += (data[i] & 0xFF);
-                            }
-                            sum = (byte) (count & 0xFF);
-
-                            logger.debug("sum is {} CRC must be {} receive {}", count, sum, data[15]);
-
-                            if (((data[0] & 0xFF) == 0b10101101) && ((data[16] & 0xFF) == 0b10101110)) {
-                                logger.debug("sum is {} CRC must be {} receive {}", count, sum, data[15]);
-                                if (sum == data[15]) {
-                                    logger.debug("CRC is OK");
-
-                                    logger.debug("Updating values...");
-                                    NooliteMTRF64BridgeHandler.updateValues(data);
-                                } else {
-                                    logger.debug("CRC is WRONG");
-                                }
-                            } else {
-                                logger.debug("Start/stop bits is wrong");
-                            }
-                        }
-                    } catch (IOException ex) {
-                        logger.debug("Error reading from serial port!", ex);
-                    }
-                });
+                out = new DataOutputStream(serial.getOutputStream());
+                out.flush();
+                if (in.markSupported()) {
+                    in.reset();
+                }
+                serial.addEventListener(this);
                 serial.notifyOnDataAvailable(true);
-            } catch (Exception e) {
+
+                watcherThread = new NooliteMTRF64AdapterWatcherThread(this, in);
+                watcherThread.start();
             }
-        }*/
+        }
+
     }
 
+    @SuppressWarnings("null")
     public void disconnect() {
         if (serial != null) {
             serial.notifyOnDataAvailable(false);
@@ -108,10 +83,24 @@ public class NooliteMTRF64Adapter {
         out = null;
     }
 
+    @SuppressWarnings("null")
     public void sendData(byte[] data) throws IOException {
         logger.debug("Sending {} bytes: {}", data.length, DatatypeConverter.printHexBinary(data));
-        output.write(25);
-        output.flush();
+        try {
+            if (out != null) {
+                out.write(data);
+                out.flush();
+            }
+        } catch (IOException e) {
+            logger.debug("sendMessage(): Writing error: {}", e.getMessage(), e);
+        }
+
+    }
+
+    @Override
+    public void serialEvent(SerialPortEvent event) {
+        // TODO Auto-generated method stub
+
     }
 
 }
