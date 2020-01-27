@@ -95,12 +95,12 @@ public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
         try {
             if (bridgeConfig.serial != null) {
                 if (adapter == null) {
-                    adapter = new NooliteMTRF64Adapter();
+                    adapter = new NooliteMTRF64Adapter(serialPortManager);
                 }
             }
             if (adapter != null) {
                 adapter.disconnect();
-                adapter.connect(bridgeConfig, serialPortManager);
+                adapter.connect(bridgeConfig);
             }
             updateStatus(ThingStatus.ONLINE);
         } catch (Exception e) {
