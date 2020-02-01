@@ -32,6 +32,7 @@ public class NooLiteBindingConstants {
 
     // List of all Channel ids
     public static final String CHANNEL_SWITCH = "switch";
+    public static final String CHANNEL_DIMMER = "dimmer";
     public static final String CHANNEL_TEMPERATURE = "temperature";
     public static final String CHANNEL_HUMIDITY = "humidity";
     public static final String CHANNEL_BATTERY = "battery";

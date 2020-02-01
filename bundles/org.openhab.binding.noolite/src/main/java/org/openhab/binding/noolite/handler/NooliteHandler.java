@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.OnOffType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -57,6 +59,9 @@ public class NooliteHandler extends BaseThingHandler {
         if (channelUID.getId().equals(NooLiteBindingConstants.CHANNEL_SWITCH)) {
             bridgeMTRF64.sendMessage(this, null, command);
         }
+        if (channelUID.getId().equals(NooLiteBindingConstants.CHANNEL_DIMMER)) {
+            bridgeMTRF64.sendMessage(this, channelUID, command);
+        }
         if (channelUID.getId().equals(NooLiteBindingConstants.CHANNEL_BINDCHANNEL)) {
             logger.debug("bindchannel {}", command);
             bridgeMTRF64.sendMessage(this, channelUID, command);
@@ -89,7 +94,7 @@ public class NooliteHandler extends BaseThingHandler {
     public void refresh(int interval) {
         long now = System.currentTimeMillis();
         if (now >= (lastRefresh + interval)) {
-            // updateData();
+            bridgeMTRF64.updateData(this);
             lastRefresh = now;
         }
     }
@@ -134,7 +139,33 @@ public class NooliteHandler extends BaseThingHandler {
     public void updateValues(byte[] data) {
         for (Channel channel : getThing().getChannels()) {
             if (isLinked(channel.getUID())) {
-                if (channel.getUID().getId().equals(NooLiteBindingConstants.CHANNEL_TEMPERATURE)) {
+                if (channel.getUID().getId().equals(NooLiteBindingConstants.CHANNEL_SWITCH)) {
+
+                    if ((data[1] == 2) || (data[1] == 3)) {
+                        // logger.debug("Updating Switch noolite F");
+                        if (data[5] == 0) {
+                            try {
+                                updateState(channel.getUID().getId(), OnOffType.OFF);
+                            } catch (RuntimeException ex) {
+                                logger.debug("Switch update error");
+                            }
+                        } else if (data[5] == 2) {
+                            try {
+                                updateState(channel.getUID().getId(), OnOffType.ON);
+                            } catch (RuntimeException ex) {
+                                logger.debug("Switch update error");
+                            }
+                        }
+                    }
+
+                } else if (channel.getUID().getId().equals(NooLiteBindingConstants.CHANNEL_DIMMER)) {
+                    float dim = data[10] & 0xFF;
+                    float per = dim / 255;
+                    try {
+                        updateState(channel.getUID().getId(), PercentType.valueOf(Integer.toString((int) (per * 100))));
+                    } catch (Exception e) {
+                    }
+                } else if (channel.getUID().getId().equals(NooLiteBindingConstants.CHANNEL_TEMPERATURE)) {
                     int intTemp = ((data[8] & 0x0f) << 8) + (data[7] & 0xff);
 
                     if (intTemp >= 0x800) {

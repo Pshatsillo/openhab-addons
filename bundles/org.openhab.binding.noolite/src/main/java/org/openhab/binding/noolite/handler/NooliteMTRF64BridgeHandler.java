@@ -168,6 +168,16 @@ public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
             data[8] = 0;
             data[9] = 0;
             data[10] = 0;
+        } else if ((channel != null) && (channel.getId().equals(NooLiteBindingConstants.CHANNEL_DIMMER))
+                && !(command.toString().equals("REFRESH"))) {
+            logger.debug("Dimmer is: {}", command);
+            data[4] = (byte) Integer.parseInt(nooliteHandler.getThing().getConfiguration().get("port").toString());
+            data[5] = (byte) 6;
+            data[6] = 0;
+            data[7] = (byte) Math.round(Integer.parseInt(command.toString()) * 2.55);
+            data[8] = 0;
+            data[9] = 0;
+            data[10] = 0;
         } else {
             data[4] = (byte) (Integer.parseInt(nooliteHandler.getThing().getConfiguration().get("port").toString()));
         }
@@ -206,6 +216,42 @@ public class NooliteMTRF64BridgeHandler extends BaseBridgeHandler {
                 }
             } catch (IOException e) {
             }
+        }
+    }
+
+    public void updateData(NooliteHandler nooliteHandler) {
+        logger.debug("updating...");
+
+        byte[] data = new byte[17];
+        data[0] = (byte) 0b10101011;
+        data[1] = (byte) Integer.parseInt(nooliteHandler.getThing().getConfiguration().get("type").toString());
+        data[2] = 0;
+        data[3] = 0;
+        data[4] = (byte) (Integer.parseInt(nooliteHandler.getThing().getConfiguration().get("port").toString()));
+        data[5] = (byte) 128;
+        data[6] = 0;
+        data[7] = 0;
+        data[8] = 0;
+        data[9] = 0;
+        data[10] = 0;
+        data[11] = 0;
+        data[12] = 0;
+        data[13] = 0;
+        data[14] = 0;
+
+        short sum = 0;
+        for (int i = 0; i < 14; i++) {
+            sum += data[i];
+        }
+
+        data[15] = (byte) sum;
+        data[16] = (byte) 0b10101100;
+
+        try {
+            if (adapter != null) {
+                adapter.sendData(data);
+            }
+        } catch (IOException e) {
         }
     }
 

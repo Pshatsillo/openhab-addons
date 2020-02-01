@@ -14,6 +14,7 @@
 
 		<channels>
 			<channel id="switch" typeId="switch" />
+			<channel id="dimmer" typeId="dimmer"></channel>
 			<channel id="temperature" typeId="temperature"></channel>
 			<channel id="humidity" typeId="humidity"></channel>
 			<channel id="battery" typeId="battery"></channel>
@@ -29,9 +30,10 @@
 			</parameter>
 			<parameter name="refresh" type="integer" required="true">
 			<label>refresh</label>
-			<description>refresh interval channel</description>
+			<description>refresh interval channel (Only for Noolite F series)</description>
 				<default>30</default>
-				</parameter>
+				<unitLabel>s</unitLabel>
+			</parameter>
 			<parameter name="type" type="text">
 				<label>Type</label>
 				<description>Select type of noolite device</description>
@@ -53,6 +55,11 @@
 		<item-type>Switch</item-type>
 		<label>Input</label>
 		<description>Port set as input signal for switch using</description>
+	</channel-type>
+	<channel-type id="dimmer">
+	<item-type>Dimmer</item-type>
+	<label>Dimmer</label>
+	<description>Dimmer</description>
 	</channel-type>
 	<channel-type id="temperature">
 		<item-type>Number</item-type>
