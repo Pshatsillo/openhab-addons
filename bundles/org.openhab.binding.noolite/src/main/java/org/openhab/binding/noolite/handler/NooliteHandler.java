@@ -143,13 +143,13 @@ public class NooliteHandler extends BaseThingHandler {
 
                     if ((data[1] == 2) || (data[1] == 3)) {
                         // logger.debug("Updating Switch noolite F");
-                        if (data[5] == 0) {
+                        if ((data[10] & 0xFF) == 0) {
                             try {
                                 updateState(channel.getUID().getId(), OnOffType.OFF);
                             } catch (RuntimeException ex) {
                                 logger.debug("Switch update error");
                             }
-                        } else if (data[5] == 2) {
+                        } else if ((data[10] & 0xFF) == 255) {
                             try {
                                 updateState(channel.getUID().getId(), OnOffType.ON);
                             } catch (RuntimeException ex) {
