@@ -1,0 +1,3 @@
+[submodule "bundles/org.openhab.binding.yandexstation"]
+	path = bundles/org.openhab.binding.yandexstation
+	url = https://github.com/Pshatsillo/org.openhab.binding.yandexstation.git
