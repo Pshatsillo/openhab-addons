@@ -94,7 +94,54 @@ public class ParadoxZoneHandler extends EntityBaseHandler {
     }
 
     private OnOffType booleanToSwitchState(boolean value) {
-        return value ? OnOffType.ON : OnOffType.OFF;
+        return OnOffType.from(value);
+    }
+
+    @Override
+    public void handleCommand(@NonNull ChannelUID channelUID, @NonNull Command command) {
+        if (command instanceof StringType) {
+            Zone zone = getZone();
+            if (zone != null) {
+                zone.handleCommand(command.toString());
+            }
+        } else {
+            super.handleCommand(channelUID, command);
+        }
+    }
+
+    protected Zone getZone() {
+        ParadoxIP150BridgeHandler bridgeHandler = getBridgeHandler();
+        if (bridgeHandler == null) {
+            logger.debug("Paradox bridge handler is null. Skipping update.");
+            return null;
+        }
+
+        ParadoxPanel panel = bridgeHandler.getPanel();
+        List<Zone> zones = panel.getZones();
+        if (zones == null) {
+            logger.debug(
+                    "Zones collection of Paradox Panel object is null. Probably not yet initialized. Skipping update.");
+            return null;
+        }
+
+        int index = calculateEntityIndex();
+        if (zones.size() <= index) {
+            logger.debug("Attempted to access a zone out of bounds of current zone list. Index: {}, List: {}", index,
+                    zones);
+            return null;
+        }
+
+        return zones.get(index);
+    }
+
+    private ParadoxIP150BridgeHandler getBridgeHandler() {
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            logger.debug("Paradox bridge is null. Skipping update.");
+            return null;
+        }
+
+        return (ParadoxIP150BridgeHandler) bridge.getHandler();
     }
 
     @Override
