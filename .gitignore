@@ -31,3 +31,5 @@ pom.xml.versionsBackup
 .vim
 shell.nix
 tags
+bundles/org.openhab.binding.megad/
+bundles/org.openhab.binding.rflink/
