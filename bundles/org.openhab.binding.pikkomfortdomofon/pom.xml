@@ -13,5 +13,14 @@
   <artifactId>org.openhab.binding.pikkomfortdomofon</artifactId>
 
   <name>openHAB Add-ons :: Bundles :: PikKomfortDomofon Binding</name>
+  <dependencies>
+    <dependency>
+      <groupId>javax.sip</groupId>
+      <artifactId>jain-sip-ri</artifactId>
+      <version>1.3.0-91</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
 
 </project>

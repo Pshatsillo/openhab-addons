@@ -10,22 +10,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.pikkomfortdomofon.internal;
+package org.openhab.binding.pikkomfortdomofon.internal.response;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * The {@link PikKomfortDomofonConfiguration} class contains fields mapping thing configuration parameters.
+ * The {@link ApiResponse} is describing api common response.
  *
  * @author Petr Shatsillo - Initial contribution
  */
 @NonNullByDefault
-public class PikKomfortDomofonConfiguration {
-
+public class ApiResponse {
     /**
-     * Sample configuration parameters. Replace with your own.
+     * The Http code.
      */
-    public String username = "";
-    public String password = "";
-    public int refreshInterval = 600;
+    public Integer httpCode = 0;
+    /**
+     * The Response.
+     */
+    public String response = "";
 }

@@ -24,11 +24,16 @@ import org.openhab.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class PikKomfortDomofonBindingConstants {
 
-    private static final String BINDING_ID = "pikkomfortdomofon";
+    public static final String BINDING_ID = "pikkomfortdomofon";
 
     // List of all Thing Type UIDs
-    public static final ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
+    public static final ThingTypeUID THING_BUILDING = new ThingTypeUID(BINDING_ID, "domofon");
+    public static final ThingTypeUID THING_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+    public static final String PIK_INTERCOM_URL = "https://intercom.rubetek.com";
+    public static final String PIK_IOT_URL = "https://iot.rubetek.com";
 
-    // List of all Channel ids
-    public static final String CHANNEL_1 = "channel1";
+    public static final String CHANNEL_SNAPSHOT_URL = "snapshotUrl";
+    public static final String CHANNEL_SNAPSHOT = "snapshot";
+    public static final String CHANNEL_RTSP_URL = "rtspUrl";
+    public static final String CHANNEL_RELAY = "relay";
 }

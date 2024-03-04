@@ -18,12 +18,19 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jetty.client.HttpClient;
+import org.openhab.binding.pikkomfortdomofon.handler.PikKomfortDomofonBridge;
+import org.openhab.binding.pikkomfortdomofon.handler.PikKomfortDomofonHandler;
+import org.openhab.core.io.net.http.HttpClientFactory;
+import org.openhab.core.thing.Bridge;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * The {@link PikKomfortDomofonHandlerFactory} is responsible for creating things and thing
@@ -34,8 +41,13 @@ import org.osgi.service.component.annotations.Component;
 @NonNullByDefault
 @Component(configurationPid = "binding.pikkomfortdomofon", service = ThingHandlerFactory.class)
 public class PikKomfortDomofonHandlerFactory extends BaseThingHandlerFactory {
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_BUILDING, THING_BRIDGE);
+    private final HttpClient httpClient;
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Set.of(THING_TYPE_SAMPLE);
+    @Activate
+    public PikKomfortDomofonHandlerFactory(@Reference HttpClientFactory httpClientFactory) {
+        this.httpClient = httpClientFactory.getCommonHttpClient();
+    }
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -46,8 +58,10 @@ public class PikKomfortDomofonHandlerFactory extends BaseThingHandlerFactory {
     protected @Nullable ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (THING_TYPE_SAMPLE.equals(thingTypeUID)) {
+        if (THING_BUILDING.equals(thingTypeUID)) {
             return new PikKomfortDomofonHandler(thing);
+        } else if (THING_BRIDGE.equals(thingTypeUID)) {
+            return new PikKomfortDomofonBridge((Bridge) thing, httpClient);
         }
 
         return null;

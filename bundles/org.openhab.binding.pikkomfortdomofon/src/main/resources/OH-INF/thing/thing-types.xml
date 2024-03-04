@@ -5,44 +5,39 @@
 	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
 
 	<!-- Sample Thing Type -->
-	<thing-type id="sample">
-		<!-- Comment this in for Things which need a Bridge to function.
-			<supported-bridge-type-refs>
-			<bridge-type-ref id="PikKomfortDomofonBridge" />
-			</supported-bridge-type-refs>
-		-->
-
-		<label>PikKomfortDomofon Binding Thing</label>
-		<description>Sample thing for PikKomfortDomofon Binding</description>
-
-		<channels>
-			<channel id="channel1" typeId="sample-channel"/>
-		</channels>
-
-		<config-description>
-			<parameter name="hostname" type="text" required="true">
-				<context>network-address</context>
-				<label>Hostname</label>
-				<description>Hostname or IP address of the device</description>
-			</parameter>
-			<parameter name="password" type="text" required="true">
-				<context>password</context>
-				<label>Password</label>
-				<description>Password to access the device</description>
-			</parameter>
-			<parameter name="refreshInterval" type="integer" unit="s" min="1">
-				<label>Refresh Interval</label>
-				<description>Interval the device is polled in sec.</description>
-				<default>600</default>
-				<advanced>true</advanced>
-			</parameter>
-		</config-description>
+	<thing-type id="domofon">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bridge"/>
+		</supported-bridge-type-refs>
+		<label>Pik Komfort Domofon property Binding Thing</label>
+		<description>Thing of property</description>
+		<!-- <channels> -->
+		<!-- <channel id="snapshotUrl" typeId="snapshotUrl"/> -->
+		<!-- <channel id="snapshot" typeId="snapshot"/> -->
+		<!-- <channel id="rtspUrl" typeId="rtspUrl"/> -->
+		<!-- <channel id="relay" typeId="relay"/> -->
+		<!-- </channels> -->
 	</thing-type>
 
-	<!-- Sample Channel Type -->
-	<channel-type id="sample-channel">
-		<item-type>Number:Temperature</item-type>
-		<label>Example Temperature</label><!-- Use uppercase words, except prepositions. 2-3 words, max 25 chars -->
-		<description>Sample channel for PikKomfortDomofon Binding</description>
+	<channel-type id="snapshotUrl">
+		<item-type>String</item-type>
+		<label>Стоп-кадр камеры</label>
+		<description>Ссылка на стоп-кадр изображения с камеры</description>
 	</channel-type>
+	<channel-type id="snapshot">
+		<item-type>Image</item-type>
+		<label>Image</label>
+		<description>Image from cam</description>
+	</channel-type>
+	<channel-type id="rtspUrl">
+		<item-type>String</item-type>
+		<label>Видео</label>
+		<description>Ссылка на видео с камеры</description>
+	</channel-type>
+	<channel-type id="relay">
+		<item-type>Switch</item-type>
+		<label>Замок</label>
+		<description>Возможность открыть замок домофона</description>
+	</channel-type>
+
 </thing:thing-descriptions>

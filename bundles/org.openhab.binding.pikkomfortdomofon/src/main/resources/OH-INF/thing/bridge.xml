@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="pikkomfortdomofon"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+	<bridge-type id="bridge">
+		<label>Pik Komfort Domofon Auth Bridge</label>
+		<description>Bridge for Pik Komfort Domofon</description>
+		<config-description>
+			<parameter name="username" type="text">
+				<context>text</context>
+				<label>Domofon phone number</label>
+				<description>
+					Domofon phone number
+				</description>
+			</parameter>
+			<parameter name="password" type="text">
+				<context>password</context>
+				<label>Domofon password</label>
+				<description>
+					Domofon password
+				</description>
+			</parameter>
+		</config-description>
+	</bridge-type>
+
+</thing:thing-descriptions>
