@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.pikkomfortdomofon.api.PikKomfortDomofonAPI;
 import org.openhab.binding.pikkomfortdomofon.dto.PikKomfortDomofonIntercoms;
 import org.openhab.binding.pikkomfortdomofon.internal.PikKomfortDomofonBindingConstants;
 import org.openhab.core.library.types.OnOffType;
@@ -64,19 +63,19 @@ public class PikKomfortDomofonHandler extends BaseThingHandler {
 
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
-        final List<PikKomfortDomofonIntercoms> intercomsList = PikKomfortDomofonAPI.intercomsList;
-        if (intercomsList != null) {
-            intercomsList.forEach(pikKomfortDomofonIntercoms -> {
-                if (pikKomfortDomofonIntercoms.getStatus().equals("online")) {
-                    if (!pikKomfortDomofonIntercoms.getRelays().isEmpty()) {
-                        List<PikKomfortDomofonIntercoms.Relays> relay = pikKomfortDomofonIntercoms.getRelays();
-                        relay.forEach(relays -> {
-                            String uid = channelUID.getId();
-                            String relayId = uid.split("_")[1];
-                            if (relays.getUserSettings().getIsFavorite()) {
-                                if (relays.getId().equals(Integer.parseInt(relayId))) {
-                                    final PikKomfortDomofonBridge bridgeDeviceHandler = this.bridgeDeviceHandler;
-                                    if (bridgeDeviceHandler != null) {
+        final PikKomfortDomofonBridge bridgeDeviceHandler = this.bridgeDeviceHandler;
+        if (bridgeDeviceHandler != null) {
+            final List<PikKomfortDomofonIntercoms> intercomsList = bridgeDeviceHandler.domofon.intercomsList;
+            if (intercomsList != null) {
+                intercomsList.forEach(pikKomfortDomofonIntercoms -> {
+                    if (pikKomfortDomofonIntercoms.getStatus().equals("online")) {
+                        if (!pikKomfortDomofonIntercoms.getRelays().isEmpty()) {
+                            List<PikKomfortDomofonIntercoms.Relays> relay = pikKomfortDomofonIntercoms.getRelays();
+                            relay.forEach(relays -> {
+                                String uid = channelUID.getId();
+                                String relayId = uid.split("_")[1];
+                                if (relays.getUserSettings().getIsFavorite()) {
+                                    if (relays.getId().equals(Integer.parseInt(relayId))) {
                                         bridgeDeviceHandler.unlockDoor(relays.getId());
                                         try {
                                             Thread.sleep(3000);
@@ -85,11 +84,11 @@ public class PikKomfortDomofonHandler extends BaseThingHandler {
                                         updateState(channelUID.getId(), OnOffType.OFF);
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -123,7 +122,7 @@ public class PikKomfortDomofonHandler extends BaseThingHandler {
             }
             if (bridgeDeviceHandler.getThing().getStatus().equals(ThingStatus.ONLINE)) {
                 List<Channel> channelList = new ArrayList<>();
-                final List<PikKomfortDomofonIntercoms> intercomsList = PikKomfortDomofonAPI.intercomsList;
+                final List<PikKomfortDomofonIntercoms> intercomsList = bridgeDeviceHandler.domofon.intercomsList;
                 if (intercomsList != null) {
                     intercomsList.forEach(pikKomfortDomofonIntercoms -> {
                         if (pikKomfortDomofonIntercoms.getStatus().equals("online")) {
@@ -202,56 +201,60 @@ public class PikKomfortDomofonHandler extends BaseThingHandler {
     private void refresh() {
         for (Channel channel : getThing().getChannels()) {
             if (isLinked(channel.getUID().getId())) {
-                final List<PikKomfortDomofonIntercoms> intercomsList = PikKomfortDomofonAPI.intercomsList;
-                if (intercomsList != null) {
-                    String uid = channel.getUID().getId();
-                    String relayId = uid.split("_")[1];
-                    intercomsList.forEach(pikKomfortDomofonIntercoms -> {
-                        if (pikKomfortDomofonIntercoms.getStatus().equals("online")) {
-                            List<PikKomfortDomofonIntercoms.Relays> relay = pikKomfortDomofonIntercoms.getRelays();
-                            relay.forEach(relays -> {
-                                if (relays.getId().equals(Integer.parseInt(relayId))) {
-                                    if (channel.getUID().getId().split("_")[0]
-                                            .equals(PikKomfortDomofonBindingConstants.CHANNEL_SNAPSHOT)) {
-                                        logger.debug("Getting urls and status of relay {}", relays.getId());
-                                        try {
-                                            ByteArrayOutputStream byteStreamOutput = new ByteArrayOutputStream();
-                                            URL url = new URL(relays.getLiveSnapshotUrl());
-                                            URLConnection urlConnection = url.openConnection();
-                                            InputStream inputStream = urlConnection.getInputStream();
-                                            int n = 0;
-                                            byte[] buffer = new byte[1024];
-                                            do {
-                                                n = inputStream.read(buffer);
-                                                if (n > 0) {
-                                                    byteStreamOutput.write(buffer, 0, n);
-                                                }
-                                            } while (n > 0);
-                                            byte[] img = byteStreamOutput.toByteArray();
-                                            RawType rt = new RawType(img, "image/jpeg");
-                                            updateState(channel.getUID().getId(), rt);
-                                        } catch (IOException e) {
-                                            logger.debug("Fetching snapshot error {}", e.getLocalizedMessage());
+                final PikKomfortDomofonBridge bridgeDeviceHandler = this.bridgeDeviceHandler;
+                if (bridgeDeviceHandler != null) {
+                    final List<PikKomfortDomofonIntercoms> intercomsList = bridgeDeviceHandler.domofon.intercomsList;
+                    if (intercomsList != null) {
+                        String uid = channel.getUID().getId();
+                        String relayId = uid.split("_")[1];
+                        intercomsList.forEach(pikKomfortDomofonIntercoms -> {
+                            if (pikKomfortDomofonIntercoms.getStatus().equals("online")) {
+                                List<PikKomfortDomofonIntercoms.Relays> relay = pikKomfortDomofonIntercoms.getRelays();
+                                relay.forEach(relays -> {
+                                    if (relays.getId().equals(Integer.parseInt(relayId))) {
+                                        if (channel.getUID().getId().split("_")[0]
+                                                .equals(PikKomfortDomofonBindingConstants.CHANNEL_SNAPSHOT)) {
+                                            logger.debug("Getting urls and status of relay {}", relays.getId());
+                                            try {
+                                                ByteArrayOutputStream byteStreamOutput = new ByteArrayOutputStream();
+                                                URL url = new URL(relays.getLiveSnapshotUrl());
+                                                URLConnection urlConnection = url.openConnection();
+                                                InputStream inputStream = urlConnection.getInputStream();
+                                                int n = 0;
+                                                byte[] buffer = new byte[1024];
+                                                do {
+                                                    n = inputStream.read(buffer);
+                                                    if (n > 0) {
+                                                        byteStreamOutput.write(buffer, 0, n);
+                                                    }
+                                                } while (n > 0);
+                                                byte[] img = byteStreamOutput.toByteArray();
+                                                RawType rt = new RawType(img, "image/jpeg");
+                                                updateState(channel.getUID().getId(), rt);
+                                            } catch (IOException e) {
+                                                logger.debug("Fetching snapshot error {}", e.getLocalizedMessage());
+                                            }
+                                        } else if (channel.getUID().getId().split("_")[0]
+                                                .equals(PikKomfortDomofonBindingConstants.CHANNEL_SNAPSHOT_URL)) {
+                                            updateState(channel.getUID().getId(),
+                                                    StringType.valueOf(relays.getLiveSnapshotUrl()));
+                                        } else if (channel.getUID().getId().split("_")[0]
+                                                .equals(PikKomfortDomofonBindingConstants.CHANNEL_RTSP_URL)) {
+                                            updateState(channel.getUID().getId(),
+                                                    StringType.valueOf(relays.getRtspUrl()));
+                                        } else if (channel.getUID().getId().split("_")[0]
+                                                .equals(PikKomfortDomofonBindingConstants.CHANNEL_RELAY)) {
+                                            updateState(channel.getUID().getId(), OnOffType.OFF);
                                         }
-                                    } else if (channel.getUID().getId().split("_")[0]
-                                            .equals(PikKomfortDomofonBindingConstants.CHANNEL_SNAPSHOT_URL)) {
-                                        updateState(channel.getUID().getId(),
-                                                StringType.valueOf(relays.getLiveSnapshotUrl()));
-                                    } else if (channel.getUID().getId().split("_")[0]
-                                            .equals(PikKomfortDomofonBindingConstants.CHANNEL_RTSP_URL)) {
-                                        updateState(channel.getUID().getId(), StringType.valueOf(relays.getRtspUrl()));
-                                    } else if (channel.getUID().getId().split("_")[0]
-                                            .equals(PikKomfortDomofonBindingConstants.CHANNEL_RELAY)) {
-                                        updateState(channel.getUID().getId(), OnOffType.OFF);
+
                                     }
+                                });
+                            }
+                        });
 
-                                }
-                            });
-                        }
-                    });
-
-                } else {
-                    logger.error("No itercoms available");
+                    } else {
+                        logger.error("No itercoms available");
+                    }
                 }
             }
         }

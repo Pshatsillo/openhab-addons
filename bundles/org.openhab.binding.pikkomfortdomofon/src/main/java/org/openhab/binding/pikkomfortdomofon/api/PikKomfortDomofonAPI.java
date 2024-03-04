@@ -14,6 +14,7 @@ package org.openhab.binding.pikkomfortdomofon.api;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +60,11 @@ public class PikKomfortDomofonAPI {
     @Nullable
     PikKomfortDomofonUsers users;
     @Nullable
-    public static PikKomfortDomofonProperties properties;
+    public PikKomfortDomofonProperties properties;
     @Nullable
-    public static List<PikKomfortDomofonBuildings> buildingsList;
+    public List<PikKomfortDomofonBuildings> buildingsList = new ArrayList<>();
     @Nullable
-    public static List<PikKomfortDomofonIntercoms> intercomsList;
+    public List<PikKomfortDomofonIntercoms> intercomsList = new ArrayList<>();
 
     public PikKomfortDomofonAPI(HttpClient httpClient) {
         this.httpClient = httpClient;
@@ -117,7 +118,7 @@ public class PikKomfortDomofonAPI {
             final PikKomfortDomofonProperties props = properties;
             if (props != null) {
                 props.getApartments().forEach(apartments -> {
-                    final List<PikKomfortDomofonBuildings> buildingsList = PikKomfortDomofonAPI.buildingsList;
+                    final List<PikKomfortDomofonBuildings> buildingsList = this.buildingsList;
                     if (buildingsList != null) {
                         PikKomfortDomofonBuildings buildingModel = new Gson().fromJson(sendGetRequest(
                                 PikKomfortDomofonBindingConstants.PIK_INTERCOM_URL + "/api/buildings/"

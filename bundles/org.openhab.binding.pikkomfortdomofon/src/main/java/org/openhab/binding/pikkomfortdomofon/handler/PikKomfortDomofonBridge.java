@@ -12,6 +12,9 @@
  */
 package org.openhab.binding.pikkomfortdomofon.handler;
 
+import static org.openhab.binding.pikkomfortdomofon.discovery.PikKomfortDomofonDiscoveryService.bridgeList;
+
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class PikKomfortDomofonBridge extends BaseBridgeHandler {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     private @Nullable ScheduledFuture<?> refreshPollingJob;
-    PikKomfortDomofonAPI domofon;
+    public PikKomfortDomofonAPI domofon;
 
     public PikKomfortDomofonBridge(Bridge bridge, HttpClient httpClient) {
         super(bridge);
@@ -68,6 +71,7 @@ public class PikKomfortDomofonBridge extends BaseBridgeHandler {
             refreshPollingJob = scheduler.scheduleWithFixedDelay(this::refresh, 10, 45, TimeUnit.SECONDS);
             this.refreshPollingJob = refreshPollingJob;
         }
+        Objects.requireNonNull(bridgeList).add(this);
     }
 
     private void refresh() {
