@@ -1,0 +1,3 @@
+[submodule "bundles/org.openhab.binding.megad"]
+	path = bundles/org.openhab.binding.megad
+	url = https://github.com/Pshatsillo/openhab2MegadBinding.git
