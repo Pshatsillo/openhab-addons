@@ -1,0 +1,3 @@
+[submodule "bundles/org.openhab.io.yandexalice"]
+	path = bundles/org.openhab.io.yandexalice
+	url = https://github.com/Pshatsillo/OpenhabYandexAlice.git
